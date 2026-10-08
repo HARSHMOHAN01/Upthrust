@@ -15,7 +15,7 @@ export default async function HomePage() {
       {/* Navigation Bar */}
       <Navbar ctaText={data.hero.ctaText} ctaLink={data.hero.ctaLink} />
 
-      <main className="flex-1 w-full">
+      <main id="main-content" className="flex-1 w-full focus:outline-none">
         {/* Hero Section with 3D Statue Bust and Blueprint Schematics */}
         <HeroSection hero={data.hero} trust={data.trustBanner} />
 

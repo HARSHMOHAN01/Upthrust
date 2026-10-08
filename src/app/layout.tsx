@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Syne } from "next/font/google";
 import "./globals.css";
 import { siteData } from "@/content/site-data";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -54,6 +55,13 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -65,6 +73,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        {/* Structured Data (JSON-LD) for Search Engine Rich Snippets */}
+        <JsonLd data={siteData} />
+
         {/* Google Tag Manager Data Layer Fallback Initialization */}
         <script
           dangerouslySetInnerHTML={{
@@ -73,6 +84,13 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${syne.variable} antialiased`}>
+        {/* Accessibility Skip Link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-brand-orange focus:text-white focus:rounded-md focus:shadow-lg focus:font-bold text-xs uppercase tracking-wider"
+        >
+          Skip to main content
+        </a>
         {children}
       </body>
     </html>
