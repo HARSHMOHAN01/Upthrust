@@ -28,6 +28,7 @@ export default function StatueCanvas({
     let targetRotationX = 0;
     let currentRotationY = 0;
     let currentRotationX = 0;
+    let isVisible = true;
 
     // 1. Scene setup
     const scene = new THREE.Scene();
@@ -38,19 +39,22 @@ export default function StatueCanvas({
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 0, 4.2);
 
-    // 3. Renderer setup
+    // 3. Renderer setup with mobile GPU optimization
+    const isMobile = window.innerWidth < 768;
+    const pixelRatio = isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2);
+
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: true,
+      antialias: !isMobile,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(pixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    // 4. Lighting setup (Chromatic & iridescent highlights)
+    // 4. Lighting setup (Iridescent highlights)
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambientLight);
 
@@ -72,7 +76,6 @@ export default function StatueCanvas({
       modelPath,
       (gltf) => {
         model = gltf.scene;
-        // Center the model in view
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
@@ -96,6 +99,7 @@ export default function StatueCanvas({
 
     // 6. Interactive Mouse Tracking
     const handleMouseMove = (event: MouseEvent) => {
+      if (!isVisible) return;
       const rect = container.getBoundingClientRect();
       const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       const y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
@@ -103,16 +107,28 @@ export default function StatueCanvas({
       targetRotationX = -y * 0.25;
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
-    // 7. Animation loop
-    let clock = new THREE.Clock();
+    // 7. IntersectionObserver to pause loop when scrolled out of view (Performance saving)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+        });
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    // 8. Animation loop with visibility throttling
+    const clock = new THREE.Clock();
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
 
+      if (!isVisible) return; // Skip rendering when out of viewport
+
+      const elapsedTime = clock.getElapsedTime();
       if (model) {
-        // Idle gentle float and smooth lerp to mouse
         currentRotationY += (targetRotationY - currentRotationY) * 0.05;
         currentRotationX += (targetRotationX - currentRotationX) * 0.05;
 
@@ -125,7 +141,7 @@ export default function StatueCanvas({
     };
     animate();
 
-    // 8. Resize handling
+    // 9. Resize handling
     const handleResize = () => {
       if (!container) return;
       const w = container.clientWidth;
@@ -135,10 +151,11 @@ export default function StatueCanvas({
       renderer.setSize(w, h);
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
-    // 9. Cleanup
+    // 10. Cleanup
     return () => {
+      observer.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameId);

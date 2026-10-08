@@ -31,6 +31,7 @@ export default function CurveCanvas({
 
     let animationFrameId: number;
     let model: THREE.Group | null = null;
+    let isVisible = true;
 
     // 1. Scene
     const scene = new THREE.Scene();
@@ -41,19 +42,22 @@ export default function CurveCanvas({
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
     camera.position.set(0, 0, 5.5);
 
-    // 3. Renderer
+    // 3. Renderer with mobile optimizations
+    const isMobile = window.innerWidth < 768;
+    const pixelRatio = isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2);
+
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: true,
+      antialias: !isMobile,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(pixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.4;
     container.appendChild(renderer.domElement);
 
-    // 4. Lighting (Warm reflective metallic orange highlights)
+    // 4. Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
@@ -93,21 +97,33 @@ export default function CurveCanvas({
       }
     );
 
-    // 6. Animation loop
+    // 6. IntersectionObserver to avoid rendering when scrolled out of view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+        });
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    // 7. Animation loop with visibility check
     const clock = new THREE.Clock();
     let currentTargetX = 0;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
+
+      if (!isVisible) return; // Save GPU cycles
+
       const elapsedTime = clock.getElapsedTime();
 
       if (model) {
-        // Shift horizontal position based on the selected service index (0 to 3)
         const targetX = (activeIndexRef.current - 1.5) * -0.6;
         currentTargetX += (targetX - currentTargetX) * 0.05;
         model.position.x = currentTargetX;
 
-        // Subtle undulating wave rotation
         model.rotation.y = Math.sin(elapsedTime * 0.4) * 0.12;
         model.rotation.x = Math.cos(elapsedTime * 0.3) * 0.06;
       }
@@ -116,7 +132,7 @@ export default function CurveCanvas({
     };
     animate();
 
-    // 7. Resize handling
+    // 8. Resize handling
     const handleResize = () => {
       if (!container) return;
       const w = container.clientWidth;
@@ -126,10 +142,11 @@ export default function CurveCanvas({
       renderer.setSize(w, h);
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
-    // 8. Cleanup
+    // 9. Cleanup
     return () => {
+      observer.disconnect();
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameId);
       if (renderer.domElement && container.contains(renderer.domElement)) {
