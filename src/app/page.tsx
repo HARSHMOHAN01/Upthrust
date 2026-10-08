@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/hero/HeroSection";
 import { ServicesSection } from "@/components/services/ServicesSection";
 import { TestimonialsSection } from "@/components/testimonials/TestimonialsSection";
 import { FaqSection } from "@/components/faq/FaqSection";
+import { ContactSection } from "@/components/forms/ContactSection";
 import { Footer } from "@/components/footer/Footer";
 
 export default async function HomePage() {
@@ -26,6 +27,9 @@ export default async function HomePage() {
 
         {/* Interactive FAQ Accordion */}
         <FaqSection faqs={data.faqs} />
+
+        {/* Contact Form with Field Validation, Persistence & GTM Event Tracking */}
+        <ContactSection contact={data.contact} brand={data.brand} />
       </main>
 
       {/* Footer */}
