@@ -29,7 +29,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
       <div className="absolute inset-0 bg-grid-pattern-dark bg-grid opacity-60 pointer-events-none" />
 
       {/* 3D Curve Ribbon Background Layer */}
-      <div className="absolute inset-0 h-[380px] md:h-[520px] top-1/2 -translate-y-1/2 pointer-events-none opacity-90 z-0">
+      <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
         <CurveCanvas
           modelPath={services.modelPath}
           activeIndex={activeIndex}
@@ -75,7 +75,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
         </div>
 
         {/* Active Service Showcase Card */}
-        <div className="relative bg-zinc-950/85 backdrop-blur-xl border border-zinc-800/90 rounded-3xl p-6 sm:p-10 md:p-12 shadow-2xl transition-all duration-300">
+        <div className="relative bg-zinc-950/40 backdrop-blur-md border border-zinc-800/60 rounded-3xl p-6 sm:p-10 md:p-12 shadow-2xl transition-all duration-300">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
             
             {/* Left: Design Mockup Preview Board */}

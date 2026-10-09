@@ -83,7 +83,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} ${syne.variable} antialiased`}>
+      <body className={`${inter.variable} ${syne.variable} antialiased`} suppressHydrationWarning>
         {/* Accessibility Skip Link */}
         <a
           href="#main-content"

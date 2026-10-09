@@ -1,5 +1,16 @@
 import React from "react";
 
+// Pre-compute tick marks with 2 decimal places to prevent floating-point precision mismatches between Node.js SSR and client browsers.
+const TICK_MARKS = Array.from({ length: 24 }).map((_, i) => {
+  const angle = (i * 15 * Math.PI) / 180;
+  return {
+    x1: Number((200 + 175 * Math.cos(angle)).toFixed(2)),
+    y1: Number((200 + 175 * Math.sin(angle)).toFixed(2)),
+    x2: Number((200 + 185 * Math.cos(angle)).toFixed(2)),
+    y2: Number((200 + 185 * Math.sin(angle)).toFixed(2)),
+  };
+});
+
 export function BlueprintCadOverlay({ className = "" }: { className?: string }) {
   return (
     <svg
@@ -23,25 +34,18 @@ export function BlueprintCadOverlay({ className = "" }: { className?: string }) 
       <line x1="73" y1="327" x2="327" y2="73" stroke="#000000" strokeWidth="0.5" strokeDasharray="2 4" opacity="0.25" />
 
       {/* Technical Tick Marks */}
-      {Array.from({ length: 24 }).map((_, i) => {
-        const angle = (i * 15 * Math.PI) / 180;
-        const x1 = 200 + 175 * Math.cos(angle);
-        const y1 = 200 + 175 * Math.sin(angle);
-        const x2 = 200 + 185 * Math.cos(angle);
-        const y2 = 200 + 185 * Math.sin(angle);
-        return (
-          <line
-            key={i}
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            stroke="#000000"
-            strokeWidth="0.75"
-            opacity="0.35"
-          />
-        );
-      })}
+      {TICK_MARKS.map((tick, i) => (
+        <line
+          key={i}
+          x1={tick.x1}
+          y1={tick.y1}
+          x2={tick.x2}
+          y2={tick.y2}
+          stroke="#000000"
+          strokeWidth="0.75"
+          opacity="0.35"
+        />
+      ))}
 
       {/* Technical Labels */}
       <text x="210" y="35" fill="#000000" opacity="0.35" fontSize="8" fontFamily="monospace">
