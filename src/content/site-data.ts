@@ -53,7 +53,7 @@ export const siteData: SiteDataSchema = {
   },
   trustBanner: {
     metricCount: "100+",
-    metricLabel: "Brands Trust Us to Deliver Real Results",
+    metricLabel: "Brands trusted us to define how they're seen.",
     clients: [
       { id: "c1", name: "Zomato", textFallback: "zomato" },
       { id: "c2", name: "Bosch", textFallback: "BOSCH" },

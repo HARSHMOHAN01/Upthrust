@@ -32,41 +32,43 @@ export default function StatueCanvas({
 
     // 1. Scene setup
     const scene = new THREE.Scene();
+    const statueGroup = new THREE.Group();
+    scene.add(statueGroup);
 
     // 2. Camera setup
     const width = container.clientWidth || 400;
     const height = container.clientHeight || 500;
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
     camera.position.set(0, 0, 4.2);
 
     // 3. Renderer setup with mobile GPU optimization
-    const isMobile = window.innerWidth < 768;
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
     const pixelRatio = isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: !isMobile,
+      antialias: true,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(pixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.3;
     container.appendChild(renderer.domElement);
 
     // 4. Lighting setup (Iridescent highlights)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambientLight);
 
-    const orangeKeyLight = new THREE.DirectionalLight(0xff4500, 3.5);
+    const orangeKeyLight = new THREE.DirectionalLight(0xff4500, 3.8);
     orangeKeyLight.position.set(4, 3, 4);
     scene.add(orangeKeyLight);
 
-    const cyanRimLight = new THREE.DirectionalLight(0x00f0ff, 2.5);
+    const cyanRimLight = new THREE.DirectionalLight(0x00f0ff, 2.8);
     cyanRimLight.position.set(-4, -2, 2);
     scene.add(cyanRimLight);
 
-    const purpleBackLight = new THREE.PointLight(0xa855f7, 3, 10);
+    const purpleBackLight = new THREE.PointLight(0xa855f7, 3.2, 10);
     purpleBackLight.position.set(0, -2, -2);
     scene.add(purpleBackLight);
 
@@ -75,19 +77,19 @@ export default function StatueCanvas({
     loader.load(
       modelPath,
       (gltf) => {
-        model = gltf.scene;
+        const model = gltf.scene;
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = 2.4 / maxDim;
+        const scale = 2.45 / maxDim;
 
         model.scale.setScalar(scale);
         model.position.x = -center.x * scale;
-        model.position.y = -center.y * scale - 0.2;
+        model.position.y = -center.y * scale;
         model.position.z = -center.z * scale;
 
-        scene.add(model);
+        statueGroup.add(model);
         setIsLoaded(true);
       },
       undefined,
@@ -103,8 +105,8 @@ export default function StatueCanvas({
       const rect = container.getBoundingClientRect();
       const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       const y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
-      targetRotationY = x * 0.45;
-      targetRotationX = -y * 0.25;
+      targetRotationY = x * 0.35;
+      targetRotationX = -y * 0.2;
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
@@ -116,48 +118,51 @@ export default function StatueCanvas({
           isVisible = entry.isIntersecting;
         });
       },
-      { threshold: 0.05 }
+      { threshold: 0 }
     );
     observer.observe(container);
 
+    // ResizeObserver for reliable dimension handling
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: w, height: h } = entry.contentRect;
+        if (w > 0 && h > 0) {
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        }
+      }
+    });
+    resizeObserver.observe(container);
+
     // 8. Animation loop with visibility throttling
     const clock = new THREE.Clock();
+    const baseRotY = -0.65; // Orient face to 3/4 left profile matching the design screenshot
+
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
       if (!isVisible) return; // Skip rendering when out of viewport
 
       const elapsedTime = clock.getElapsedTime();
-      if (model) {
+      if (statueGroup) {
         currentRotationY += (targetRotationY - currentRotationY) * 0.05;
         currentRotationX += (targetRotationX - currentRotationX) * 0.05;
 
-        model.rotation.y = currentRotationY + Math.sin(elapsedTime * 0.6) * 0.08;
-        model.rotation.x = currentRotationX + Math.cos(elapsedTime * 0.8) * 0.04;
-        model.position.y = -0.2 + Math.sin(elapsedTime * 1.2) * 0.05;
+        statueGroup.rotation.y = baseRotY + currentRotationY + Math.sin(elapsedTime * 0.6) * 0.05;
+        statueGroup.rotation.x = currentRotationX + Math.cos(elapsedTime * 0.8) * 0.03;
+        statueGroup.position.y = Math.sin(elapsedTime * 1.0) * 0.04;
       }
 
       renderer.render(scene, camera);
     };
     animate();
 
-    // 9. Resize handling
-    const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-
-    window.addEventListener("resize", handleResize, { passive: true });
-
-    // 10. Cleanup
+    // 9. Cleanup
     return () => {
       observer.disconnect();
+      resizeObserver.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameId);
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);

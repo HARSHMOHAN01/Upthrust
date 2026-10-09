@@ -2,36 +2,51 @@ import React from "react";
 
 export function StrategyCheaperCallout({ className = "" }: { className?: string }) {
   return (
-    <div className={`relative inline-block font-sans font-bold uppercase tracking-wider text-xs md:text-sm text-zinc-900 ${className}`}>
-      <span className="relative z-10 px-2 py-0.5">STRATEGY IS CHEAPER</span>
-      {/* Hand-drawn style orange loop SVG */}
-      <svg
-        className="absolute -inset-1.5 w-[calc(100%+12px)] h-[calc(100%+12px)] pointer-events-none"
-        viewBox="0 0 160 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M12 20C10 9 35 4 80 4C135 4 154 11 154 20C154 29 125 36 75 36C25 36 6 29 6 18C6 11 25 7 50 6"
-          stroke="#FF4500"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+    <div className={`font-sans font-black uppercase tracking-wider text-[11px] sm:text-xs md:text-sm text-zinc-950 leading-tight select-none ${className}`}>
+      <div>STRATEGY IS</div>
+      <div className="relative inline-block mt-0.5">
+        <span className="relative z-10 px-1">CHEAPER</span>
+        {/* Hand-drawn style orange loop around CHEAPER */}
+        <svg
+          className="absolute -inset-x-2.5 -inset-y-1 w-[calc(100%+20px)] h-[calc(100%+8px)] pointer-events-none"
+          viewBox="0 0 100 32"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M8 17 C 6 8, 26 3, 52 3 C 80 3, 94 8, 94 17 C 94 25, 74 29, 48 29 C 20 29, 5 24, 5 15 C 5 9, 18 5, 34 5"
+            stroke="#FF4500"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
     </div>
   );
 }
 
 export function IdentityMotionCallout({ className = "" }: { className?: string }) {
   return (
-    <div className={`font-sans font-extrabold tracking-widest text-[11px] md:text-xs text-zinc-900 leading-relaxed uppercase ${className}`}>
+    <div className={`font-sans font-black tracking-widest text-[11px] sm:text-xs md:text-sm text-zinc-950 leading-relaxed uppercase select-none ${className}`}>
       <div>IDENTITY ·</div>
       <div>EXPERIENCE ·</div>
       <div className="relative inline-block">
-        <span className="text-zinc-900">MOTION</span>
-        <span className="inline-block w-1.5 h-1.5 ml-1 bg-brand-orange rounded-full" />
+        <span>MOTION ·</span>
+        {/* Hand-drawn style orange wavy underline */}
+        <svg
+          className="absolute left-0 -bottom-1.5 w-full h-2.5 pointer-events-none"
+          viewBox="0 0 76 8"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 4 C 14 1, 26 7, 38 3 C 50 0, 62 6, 74 4"
+            stroke="#FF4500"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+        </svg>
       </div>
     </div>
   );
@@ -39,23 +54,25 @@ export function IdentityMotionCallout({ className = "" }: { className?: string }
 
 export function ComfortableExpensiveCallout({ className = "" }: { className?: string }) {
   return (
-    <div className={`relative inline-block font-sans font-bold uppercase tracking-wider text-xs md:text-sm text-zinc-900 ${className}`}>
-      <span>COMFORTABLE IS EXPENSIVE</span>
-      {/* Hand-drawn style orange underline */}
-      <svg
-        className="absolute left-0 -bottom-1.5 w-full h-3 pointer-events-none"
-        viewBox="0 0 180 12"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M2 7C45 4 120 4 178 8"
-          stroke="#FF4500"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-      </svg>
+    <div className={`font-sans font-black uppercase tracking-wider text-[11px] sm:text-xs md:text-sm text-zinc-950 leading-tight select-none ${className}`}>
+      <div>COMFORTABLE</div>
+      <div className="relative inline-block mt-0.5">
+        <span>IS EXPENSIVE</span>
+        {/* Hand-drawn style orange wavy underline */}
+        <svg
+          className="absolute left-0 -bottom-1.5 w-full h-2.5 pointer-events-none"
+          viewBox="0 0 120 8"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 4 C 18 1, 36 7, 56 3 C 76 0, 96 6, 118 4"
+            stroke="#FF4500"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
     </div>
   );
 }
